@@ -3,7 +3,7 @@ import Selector from './selector';
 import MixinDefinition from './mixin-definition';
 import defaultFunc from '../functions/default';
 
-const MixinCall = function(elements, args, index, currentFileInfo, important) {
+const MixinCall = function(elements, args, index, currentFileInfo, important, filters) {
     this.selector = new Selector(elements);
     this.arguments = args || [];
     this._index = index;
@@ -11,6 +11,7 @@ const MixinCall = function(elements, args, index, currentFileInfo, important) {
     this.important = important;
     this.allowRoot = true;
     this.setParent(this.selector, this);
+    this.filters = filters;
 };
 
 MixinCall.prototype = Object.assign(new Node(), {
@@ -167,6 +168,19 @@ MixinCall.prototype = Object.assign(new Node(), {
                 }
 
                 if (match) {
+                    const filters = this.filters.map(f => f.eval(context)).reduce(
+                        (list, f) => {
+                            if (f.type === 'Value') {
+                                return list.concat(
+                                    f.value.map((q) => q.value)
+                                );
+                            } else if (f.type === 'Quoted') {
+                                return list.concat(f.value);
+                            }
+                        }, []
+                    )
+                    rules = rules.filter((r) => !filters.includes(r.name));
+
                     return rules;
                 }
             }

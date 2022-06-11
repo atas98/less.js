@@ -896,6 +896,7 @@ const Parser = function Parser(context, imports, fileInfo) {
                     let elements;
                     let args;
                     let hasParens;
+                    let filters = [];
 
                     if (s !== '.' && s !== '#') { return; }
 
@@ -928,9 +929,21 @@ const Parser = function Parser(context, imports, fileInfo) {
                             important = true;
                         }
 
+                        while (true) {
+                            if (parserInput.$char('-')) {
+                                let e = parsers.entities.variable()
+                                if (!e) {
+                                    error("Expected variable");
+                                }
+                                filters.push(e);
+                            } else {
+                                break;
+                            }
+                        }
+
                         if (inValue || parsers.end()) {
                             parserInput.forget();
-                            const mixin = new(tree.mixin.Call)(elements, args, index, fileInfo, !lookups && important);
+                            const mixin = new(tree.mixin.Call)(elements, args, index, fileInfo, !lookups && important, filters);
                             if (lookups) {
                                 return new tree.NamespaceValue(mixin, lookups);
                             }

@@ -1,0 +1,31 @@
+@color: "color";
+@display: "display";
+@my_list: "width", "color";
+
+.my-mixin-1 () {
+  width: 100px;
+  color: green;
+  .a {
+    color: white;
+  }
+}
+
+.my-mixin-2 () {
+    color: black;
+    display: flex;
+    width: 100%;
+}
+
+.my-class {
+  .my-mixin-1() - @my_list;
+}
+
+.section h1 {
+    @filter: @display;
+    .my-mixin-2() - @@filter;
+}
+
+.section h1 {
+    @filter: @color;
+    .my-mixin-2() - @@filter;
+}
